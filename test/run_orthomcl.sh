@@ -1,0 +1,1 @@
+../bin/orthomclInstallSchema orthomcl.config
