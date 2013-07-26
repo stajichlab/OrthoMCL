@@ -49,6 +49,11 @@ sub getDbh {
       require DBD::Oracle;
     } elsif ($dbVendor eq 'mysql') {
       require DBD::mysql;
+    }
+## added by sofia 
+    elsif ($dbVendor eq 'sqlite') {
+      require DBD::SQLite;
+## end add by sofia
     } else {
       die "config file '$self->{configFile}' has invalid value '$dbVendor' for dbVendor property\n";
     }
