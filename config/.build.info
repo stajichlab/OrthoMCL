@@ -1,0 +1,12 @@
+#Build Information
+#Thu Jul 18 13:49:45 EDT 2013
+\!Last.build.timestamp=2013/07/18 13\:49\:45
+install..buildtime=2013/07/18 13\:49\:43
+install.svn.status=?       install/junk
+OrthoMCLEngine.Main.buildtime=2013/07/18 13\:49\:45
+OrthoMCLEngine.svn.info=URL\: https\://www.cbil.upenn.edu/svn/apidb/OrthoMCLEngine/trunk\nRevision\: 56989\nLast Changed Rev\: 56989\nLast Changed Date\: 2013-07-18 13\:40\:19 -0400 (Thu, 18 Jul 2013)
+\!Last.build.component=OrthoMCLEngine
+OrthoMCLEngine.svn.status=
+\!Last.build=OrthoMCLEngine @ 2013/07/18 13\:49\:45
+install.svn.info=URL\: https\://www.cbil.upenn.edu/svn/gus/install/trunk\nRevision\: 12096\nLast Changed Rev\: 12061\nLast Changed Date\: 2013-04-29 01\:23\:29 -0400 (Mon, 29 Apr 2013)
+\!Last.build.initialTarget=install

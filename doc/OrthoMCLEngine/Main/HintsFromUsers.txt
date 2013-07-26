@@ -1,0 +1,15 @@
+In this document we will post suggestions provided by the OrthoMCL User Community.
+
+=========== Hint (1) Ubuntu Installtion (1/3/2013)  =========================================
+
+I have recently installed orthomcl on Ubuntu 10.04 LTS running in VirtualBox 4.1.8r75467 in windows 7, and found several issues that needed to be addressed before I could complete the installation and which were not mentioned in your walkthrough (which was very accessible for me, a newbie to all of this):
+ 
+1.       I needed to install libaio (I installed libaio1 and libaio-dev through the Ubuntu software center)
+2.       I changed lines 3 and 21 in the mysql.cnf file to the following:
+From: socket=/tmp/mysql_2.sock
+To: socket=/tmp/mysql.sock
+3.       I installed mysql as an admin and before step IV.2 needed to add:
+sudo ln -s /home/douglaslab/software/mysql/bin/mysql_config /usr/local/bin
+4.       during step IV.2 I also ran:
+Sudo perl -MCPAN -e shell
+ 

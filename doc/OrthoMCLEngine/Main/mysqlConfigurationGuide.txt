@@ -1,0 +1,36 @@
+There are three key configuration properties that must be set so MySQL can handle the size of data you are using.
+
+They are:
+  myisam_max_sort_file_size
+  myisam_sort_buffer_size
+  read_buffer_size
+
+* If you are using an existing MySQL database, login to it and run these commands to see the current values of these properties:
+   
+                 mysql> show variables LIKE 'myisam_max_sort_file_size';
+               
+                 mysql> show variables LIKE 'myisam_sort_buffer_size';
+
+                 mysql> show variables LIKE 'read_buffer_size';     
+
+         
+          NOTE: These values will display in bytes, i.e. a value of
+                2147479552 for read_buffer_size is equivalent to 2 Gigabytes.
+
+If these values are less than what you will need, as described below, contact your mysql administrator (provide this file for reference).
+
+
+* If you are installing your own mysql, edit these properties in the mysql.cnf file.
+
+
+* Suggested settings
+
+       a) set myisam_sort_buffer_size= to 50% of available ram
+           - to find out how much ram you have:
+                dmesg | grep Memory
+           - it gives you a report in kilobytes.  divide by 1000000 to get a number of Gs.
+
+       b) set myisam_max_sort_file_size= to 5 x the size of the file made by orthomclBlastParser.
+           - (revisit this after you have run orthomclBlastParser)
+
+       c) set read_buffer_size= to ???

@@ -1,0 +1,35 @@
+[client]
+
+socket=/tmp/mysql_2.sock
+
+port=3307
+
+####################################
+
+[mysqld]
+
+#REQUIRED!!
+#Change the basedir directory to reflect your mysql home directory
+basedir=your_mysql_dir
+
+#REQUIRED!!
+#Change the data direcory to reflect your mysql data directory
+datadir=your_mysql_dir/data
+
+port=3307
+
+socket=/tmp/mysql_2.sock
+
+key_buffer_size=64M
+
+#[OPTIMIZATION]
+#Set this value to 50% of available RAM if your environment permits.
+myisam_sort_buffer_size=4G
+
+#[OPTIMIZATION]
+#This value should be at least 50% of free hard drive space. Use caution if setting it to 100% of free space however. Your hard disk may fill up!
+myisam_max_sort_file_size=200G
+
+#[OPTIMIZATION]
+#Our default of 2G is probably fine for this value. Change this value only if you are using a machine with little resources available. 
+read_buffer_size=2G

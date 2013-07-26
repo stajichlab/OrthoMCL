@@ -1,0 +1,5 @@
+Whatever tablespace is used for the orthomcl data may need to be very large.
+
+A good estimate is 5x size of the file produced by the orthomclBlastParser program.
+
+If the DBA desires indexes to be in a separate tablespace, use the oracleIndexTblSpc property in the orthomcl.config file

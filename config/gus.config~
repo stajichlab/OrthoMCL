@@ -1,0 +1,83 @@
+##
+## GUS Configuration
+##
+##
+## @version $Revision: 1.1.2.2 $ $Date: 2005/05/06 16:32:34 $
+##
+
+### GUS End User Configurtion
+###
+
+
+####### gus.properties
+
+# RDBMS Connection Strings
+## dbiDsn is for Perl ( i.e. dbi:Oracle:NAME_OF_DATABASE )
+## jdbcDsn is for JDBC/Java ( i.e. jdbc:oracle:thin:@HOSTNAME:PORT:NAME_OF_DATABASE )
+dbVendor=Oracle
+
+#dbiDsn=dbi:Oracle:plas550n
+#databaseLogin=sfischer
+#databasePassword=heathersofia
+#group=plasmoDB
+#project=plasmoDB:5.4
+#databaseLogin=apidb
+#databasePassword=po34weep
+
+dbiDsn=dbi:Oracle:trypdev
+jdbcDsn=jdbc:oracle:oci:@trypdev
+databaseLogin=sfischer
+databasePassword=heathersofia
+group=OrthoMCL
+project=OrthoMCL:2.0
+
+
+# Username, group, and project info from the relevant Core tables
+
+userName=dba
+
+tablespace=GUS
+
+####### install.prop
+
+# Path to Perl Executable
+perl=/usr/bin/perl
+
+####### GUS-PluginMgr.prop
+
+# Path to MD5 Executable
+md5sum=/usr/bin/md5sum
+
+################################################################################
+###   Warning:  Do not change items below here unless you know what you're doing
+################################################################################
+
+gusSchemas=Core,App,RAD,DoTS,SRes,TESS,Prot,Study,PlasmoDB
+coreSchemaName=CORE
+
+sequenceStart=1
+
+### Common delimited list of housekeeping columns.  In order as they should appear in the tables
+housekeepingColumns=MODIFICATION_DATE,USER_READ,USER_WRITE,GROUP_READ,GROUP_WRITE,OTHER_READ,OTHER_WRITE,ROW_USER_ID,ROW_GROUP_ID,ROW_PROJECT_ID,ROW_ALG_INVOCATION_ID
+housekeepingColumnsVer=MODIFICATION_DATE,USER_READ,USER_WRITE,GROUP_READ,GROUP_WRITE,OTHER_READ,OTHER_WRITE,ROW_USER_ID,ROW_GROUP_ID,ROW_PROJECT_ID,ROW_ALG_INVOCATION_ID,VERSION_ALG_INVOCATION_ID,VERSION_DATE,VERSION_TRANSACTION_ID
+
+### type,length,precision,nullable
+
+hkspec.MODIFICATION_DATE=Date,0,0,false
+hkspec.USER_READ=Character,1,0,false
+hkspec.USER_WRITE=Character,1,0,false
+hkspec.GROUP_READ=Character,1,0,false
+hkspec.GROUP_WRITE=Character,1,0,false
+hkspec.OTHER_READ=Character,1,0,false
+hkspec.OTHER_WRITE=Character,1,0,false
+hkspec.ROW_USER_ID=Number,12,0,false
+hkspec.ROW_GROUP_ID=Number,4,0,false
+hkspec.ROW_PROJECT_ID=Number,4,0,false
+hkspec.ROW_ALG_INVOCATION_ID=Number,12,0,false
+
+hkspec.VERSION_ALG_INVOCATION_ID=Number,12,0,true
+hkspec.VERSION_DATE=Date,0,0,true
+hkspec.VERSION_TRANSACTION_ID=Number,12,0,true
+
+hibernate.mapdir=/Users/msaffitz/cvswork/gusdba/build/hbm
+hibernate.basePkg=org.gus.model
