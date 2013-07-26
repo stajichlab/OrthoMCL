@@ -18,6 +18,11 @@ my $dbVendor = $base->getConfig("dbVendor");
 if ($dbVendor eq 'mysql') {
   loadBlastMySQL($base, $blastFile);
 }
+## added by sofia
+elsif ($dbVendor eq 'sqlite') {
+  loadBlastSQLite($base, $blastFile);
+}
+## end add by sofia
 elsif ($dbVendor eq 'oracle') {
   loadBlastOracle($base, $blastFile);
 } else {
@@ -38,6 +43,23 @@ sub loadBlastMySQL {
   my $stmt = $dbh->prepare($sql) or die DBI::errstr;
   $stmt->execute() or die DBI::errstr;
 }
+
+## added by sofia
+sub loadBlastSQLite {
+  my ($base, $blastFile) = @_;
+  require DBD::SQLite;
+  my $dbh = $base->getDbh();
+  my $sst = $base->getConfig("similarSequencesTable");
+  my $sql = "
+ LOAD DATA
+ LOCAL INFILE \"$blastFile\"
+ REPLACE INTO TABLE $sst
+ FIELDS TERMINATED BY '\\t'
+";
+  my $stmt = $dbh->prepare($sql) or die DBI::errstr;
+  $stmt->execute() or die DBI::errstr;
+}
+## end add by sofia
 
 
 sub loadBlastOracle {
