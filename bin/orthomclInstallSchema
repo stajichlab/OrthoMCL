@@ -172,6 +172,18 @@ CREATE OR REPLACE VIEW $itv$suffix
 	FROM $sst$suffix ss
 	WHERE ss.subject_taxon_id != ss.query_taxon_id
 ";
+
+## added by sofia
+ if( $base->getConfig("dbVendor") eq 'sqlite'){
+   $sql = "
+CREATE VIEW $itv$suffix
+	AS SELECT ss.query_id, ss.subject_id, ss.subject_taxon_id,
+	ss.evalue_mant, ss.evalue_exp
+	FROM $sst$suffix ss
+	WHERE ss.subject_taxon_id != ss.query_taxon_id
+";
+  } 
+## end add by sofia
  runSql($sql);
 }
 
