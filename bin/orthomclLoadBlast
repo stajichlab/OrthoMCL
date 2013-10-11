@@ -18,11 +18,9 @@ my $dbVendor = $base->getConfig("dbVendor");
 if ($dbVendor eq 'mysql') {
   loadBlastMySQL($base, $blastFile);
 }
-## added by sofia
 elsif ($dbVendor eq 'sqlite') {
   loadBlastSQLite($base, $blastFile);
 }
-## end add by sofia
 elsif ($dbVendor eq 'oracle') {
   loadBlastOracle($base, $blastFile);
 } else {
@@ -43,23 +41,24 @@ sub loadBlastMySQL {
   my $stmt = $dbh->prepare($sql) or die DBI::errstr;
   $stmt->execute() or die DBI::errstr;
 }
-
-## added by sofia
 sub loadBlastSQLite {
   my ($base, $blastFile) = @_;
   require DBD::SQLite;
   my $dbh = $base->getDbh();
   my $sst = $base->getConfig("similarSequencesTable");
-  my $sql = "
- LOAD DATA
- LOCAL INFILE \"$blastFile\"
- REPLACE INTO TABLE $sst
- FIELDS TERMINATED BY '\\t'
-";
-  my $stmt = $dbh->prepare($sql) or die DBI::errstr;
-  $stmt->execute() or die DBI::errstr;
+  my $dbString = $base->getConfig("dbConnectString");
+  my $dbInstance;
+  if ($dbString =~ /DBI:SQLite:database=(.+)$/i){
+    $dbInstance = $1;
+  }else {
+    die "orthomcl.conf $dbString should be dbConnectString=DBI:SQLite:YOUR_DATABASE_NAME\n";
+  }
+  
+  #my @database = split(/:/, $dbString);
+  #my $dbInstance = $database[2];
+  my $import_stmt = '.separator \"\\\t\"\n.import '. "$blastFile $sst\n"; ## this works also 
+  `printf "$import_stmt" | sqlite3 $dbInstance`;
 }
-## end add by sofia
 
 
 sub loadBlastOracle {
