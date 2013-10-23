@@ -174,14 +174,12 @@ my $straightJoin =
 
 if ( $base->getConfig("dbVendor") eq 'sqlite' ) {
 
-  # log base x of y  = ln y / ln x
-  #$dbh->sqlite_create_function( 'log', 2, sub { log( $_[1] ) / log( $_[0] ) } );
+ # log base x of y  = ln y / ln x
+ #$dbh->sqlite_create_function( 'log', 2, sub { log( $_[1] ) / log( $_[0] ) } );
   $dbh->sqlite_create_function( 'least',    -1, sub { min(@_) } );
   $dbh->sqlite_create_function( 'greatest', -1, sub { max(@_) } );
-  $dbh->sqlite_create_function( 'log',       1, sub { log(shift) } ); #2.71
-  $dbh->sqlite_create_function( 'log10',     1, sub { log(shift)/log(10) } );
-  #$dbh->sqlite_create_function( 'loge',      1, sub { log(shift) } ); #2.71
-  #$dbh->sqlite_create_function( 'log2',      1, sub { log(shift)/log(2) } );
+  $dbh->sqlite_create_function( 'log',      1,  sub { log(shift) } );    #2.71
+  $dbh->sqlite_create_function( 'log10', 1, sub { log(shift) / log(10) } );
 
 }
 commonTempTables();
@@ -272,7 +270,6 @@ CREATE TABLE BestQueryTaxonScore$suffix (
 
     runSql( $sql, "create new table in SQLite BestQueryTaxonScore",
             'bestQueryTaxonScore', '1.5 hours', undef );
-#INSERT INTO BestQueryTaxonScore$suffix $oracleNoLogging (query_id,subject_taxon_id,evalue_mant,evalue_exp)
     $sql = "
 INSERT INTO BestQueryTaxonScore$suffix $oracleNoLogging (query_id,subject_taxon_id,evalue_exp,evalue_mant)
 SELECT im.query_id, im.subject_taxon_id, low_exp.evalue_exp, min(im.evalue_mant)
@@ -312,9 +309,9 @@ sub orthologs {
 
   my $sql = "
 create table BestHit$suffix $oracleNoLogging as
-select DISTINCT (s.query_id, s.subject_id,
+select s.query_id, s.subject_id,
        s.query_taxon_id, s.subject_taxon_id,
-       s.evalue_exp, s.evalue_mant)
+       s.evalue_exp, s.evalue_mant
 from $sst$suffix s, BestQueryTaxonScore$suffix cutoff
 where s.query_id = cutoff.query_id
   and s.subject_taxon_id = cutoff.subject_taxon_id
@@ -342,7 +339,7 @@ where s.query_id = cutoff.query_id
        query_id, subject_id,
        query_taxon_id, subject_taxon_id,
        evalue_exp, evalue_mant ) 
-      select distinct s.query_id, s.subject_id,
+      select s.query_id, s.subject_id,
        s.query_taxon_id, s.subject_taxon_id,
        s.evalue_exp, s.evalue_mant
       from $sst$suffix s, BestQueryTaxonScore$suffix cutoff
@@ -450,7 +447,6 @@ where im.query_id = low_exp.query_id
 group by im.query_id, low_exp.evalue_exp
 ";
   if ( $base->getConfig("dbVendor") eq 'sqlite' ) {
-
 
     $sql = "CREATE TABLE BestInterTaxonScore (
    QUERY_ID                 VARCHAR(60),
@@ -689,6 +685,24 @@ union
 select sequence_id_b as sequence_id from $orthologTable$suffix) i
 ";
 
+  if ( $base->getConfig("dbVendor") eq 'sqlite' ) {
+    $sql = " create table OrthologUniqueId$suffix (
+  SEQUENCE_ID	VARCHAR(60)
+);
+";
+    runSql( $sql, "create OrthologUniqueId table",
+            'inParalogTaxonAvg', '1 min', undef );
+
+    $sql = "
+INSERT INTO OrthologUniqueId$suffix $oracleNoLogging
+(sequence_id)
+select distinct(sequence_id) from (
+select sequence_id_a as sequence_id from $orthologTable$suffix
+union
+select sequence_id_b as sequence_id from $orthologTable$suffix) i
+";
+
+  }
   runSql( $sql, "create OrthologUniqueId table",
           'orthologUniqueId', '5 min', undef );
 
@@ -784,7 +798,7 @@ sub coorthologs {
     unless $clean eq 'only' || $clean eq 'all';
 
   my $inParalogTable        = $base->getConfig("inParalogTable");
-  my $orthologTable         = $base->getConfig("orthologTable");
+  my $outhologTable         = $base->getConfig("orthologTable");
   my $coOrthologTable       = $base->getConfig("coOrthologTable");
   my $evalueExpThreshold    = $base->getConfig("evalueExponentCutoff");
   my $percentMatchThreshold = $base->getConfig("percentMatchCutoff");
@@ -823,6 +837,26 @@ select sequence_id_a, sequence_id_b from $orthologTable$suffix
 union
 select sequence_id_b as sequence_id_a, sequence_id_a as sequence_id_b from $orthologTable$suffix
 ";
+
+  if ( $base->getConfig("dbVendor") eq 'sqlite' ) {
+    $sql = "
+create table Ortholog2Way$suffix(
+SEQUENCE_ID_A	VARCHAR(60),
+SEQUENCE_ID_B	VARCHAR(60) 
+)
+";
+
+    runSql( $sql, "create Ortholog2Way", 'ortholog2Way', '1 hours', undef );
+
+    $sql = "
+INSERT INTO  Ortholog2Way$suffix $oracleNoLogging 
+-- symmetric closure of Ortholog
+select sequence_id_a, sequence_id_b from $orthologTable$suffix
+union
+select sequence_id_b as sequence_id_a, sequence_id_a as sequence_id_b from $orthologTable$suffix
+";
+
+  }
 
   runSql( $sql, "create Ortholog2Way", 'ortholog2Way', '1 hours', undef );
 
@@ -906,6 +940,26 @@ from (select sequence_id_a, sequence_id_b from InplgOrthoInplg$suffix
       select sequence_id_a, sequence_id_b from InParalogOrtholog$suffix) t
 ";
 
+  if ( $base->getConfig("dbVendor") eq 'sqlite' ) {
+    $sql = "
+create table CoOrthologCandidate$suffix (
+      SEQUENCE_ID_A     VARCHAR(60),
+      SEQUENCE_ID_B     VARCHAR(60)
+);
+";
+    runSql( $sql, "create CoOrthologCandidate",
+            'coOrthologCandidate', '1 hour', undef );
+    $sql = "
+INSERT INTO  CoOrthologCandidate$suffix
+select distinct
+       min(sequence_id_a, sequence_id_b) as sequence_id_a,
+       max(sequence_id_a, sequence_id_b) as sequence_id_b
+from (select sequence_id_a, sequence_id_b from InplgOrthoInplg$suffix
+      union
+      select sequence_id_a, sequence_id_b from InParalogOrtholog$suffix) t
+";
+  }
+
   runSql( $sql, "create CoOrthologCandidate",
           'coOrthologCandidate', '1 hour', undef );
 
@@ -986,7 +1040,7 @@ where ab.query_id = candidate.sequence_id_a $tf
 
   if ( $base->getConfig("dbVendor") eq 'sqlite' ) {
     $sql = "
-create table CoOrthologTemp$suffix $oracleNoLogging 
+create table CoOrthologTemp$suffix 
 (SEQUENCE_ID_A	VARCHAR(60),
 SEQUENCE_ID_B	VARCHAR(60),
 TAXON_ID_A	VARCHAR(40),	
@@ -1066,6 +1120,23 @@ from ${coCaps}OrthologTaxon$suffix
 group by smaller_tax_id, bigger_tax_id
 ";
 
+  if ( $base->getConfig("dbVendor") eq 'sqlite' ) {
+    $sql = " 
+CREATE TABLE ${coCaps}OrthologAvgScore$suffix (
+  SMALLER_TAX_ID	VARCHAR(40),
+  BIGGER_TAX_ID		VARCHAR(40),
+  AVG_SCORE		FLOAT
+);
+";
+    runSql( $sql, "create ${coCaps}OrthologAvgScore table",
+            "${co}rthologAvg", '1 min', undef );
+
+    $sql = "INSERT INTO ${coCaps}OrthologAvgScore$suffix $oracleNoLogging 
+select smaller_tax_id, bigger_tax_id, avg(unnormalized_score) avg_score
+from ${coCaps}OrthologTaxon$suffix
+group by smaller_tax_id, bigger_tax_id;"
+  }
+
   runSql( $sql, "create ${coCaps}OrthologAvgScore table",
           "${co}rthologAvg", '1 min', undef );
 
@@ -1084,8 +1155,16 @@ group by smaller_tax_id, bigger_tax_id
   select ot.sequence_id_a, ot.sequence_id_b, ot.taxon_id_a, ot.taxon_id_b, ot.unnormalized_score, ot.unnormalized_score/a.avg_score
   from ${coCaps}OrthologTemp$suffix ot, ${coCaps}OrthologAvgScore$suffix a
 where least(ot.taxon_id_a, ot.taxon_id_b) = a.smaller_tax_id
-    and greatest(ot.taxon_id_a, ot.taxon_id_b) = a.bigger_tax_id
-";
+    and greatest(ot.taxon_id_a, ot.taxon_id_b) = a.bigger_tax_id;";
+
+  if ( $base->getConfig("dbVendor") eq 'sqlite' ) {
+    $sql = "
+  insert into $orthologTable$suffix (sequence_id_a, sequence_id_b, taxon_id_a, taxon_id_b, unnormalized_score, normalized_score)
+  select ot.sequence_id_a, ot.sequence_id_b, ot.taxon_id_a, ot.taxon_id_b, ot.unnormalized_score, ot.unnormalized_score/a.avg_score
+  from ${coCaps}OrthologTemp$suffix ot, ${coCaps}OrthologAvgScore$suffix a
+where min(ot.taxon_id_a, ot.taxon_id_b) = a.smaller_tax_id
+    and max(ot.taxon_id_a, ot.taxon_id_b) = a.bigger_tax_id;";
+  }
 
   runSql( $sql, "populate $orthologTable table, including normalized_score",
           "${co}rthologsNormalization", '2 min', "$orthologTable$suffix" );
