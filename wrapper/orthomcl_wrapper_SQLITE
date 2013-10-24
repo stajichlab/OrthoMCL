@@ -176,7 +176,7 @@ if [ ! -d $DIR/blastp_out ] ; then
 fi
 BLAST_Q=0
 ## consider adding check for qsub:  if [ `which qsub` != '' ] ; then
-if [ ! -e $DIR/goodProteins.BLASTP.bpo ] ; then
+if [ ! -d $DIR/blastp_out ] ; then
   ## make array BLAST job
   BLAST_Q=1
   echo "#PBS -t 0-${MAX}
@@ -195,8 +195,8 @@ fi
 
 
 echo "
-module load orthoMCL
-module load ncbi-blast
+#module load orthoMCL
+#module load ncbi-blast
 
 cd $DIR 
 
