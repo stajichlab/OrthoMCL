@@ -4,7 +4,7 @@ source /usr/local/Modules/3.2.9/init/bash
 
 module load ncbi-blast
 
-SCRIPTS=./
+SCRIPTS="$( cd "$(dirname "$0")" ; pwd -P )"
 ORTHOMCL_BIN=$ORTHO ##set environmental variable in .bashrc: export ORTHO=bin_dir_for_orthoMCL: source .bashrc
 OPTS=$(getopt -o p:u:s:o: -l "protein_dir:,uniqid:,split:,ortho_db:" -n orthoWrapper.sh -- "$@")
 if [ $? -ne 0 ]
@@ -180,11 +180,11 @@ if [ ! -e $DIR/goodProteins.BLASTP.bpo ] ; then
   ## make array BLAST job
   BLAST_Q=1
   echo "#PBS -t 0-${MAX}
-  #PBS -q js
-  ##PBS -l nodes=1:ppn=4
-  module load ncbi-blast
-  cd $DIR
-  blastp -query good_proteins_split/goodProteins_part_\${PBS_ARRAYID}.fasta -db goodProteins.fasta -num_threads 4 -outfmt 6 -out $DIR/blastp_out/goodProteins_part_\${PBS_ARRAYID}_vs_goodProteins.BLASTP.tab -evalue 1e-3" > $DIR/run_split_blast_array.sh
+#PBS -q js
+##PBS -l nodes=1:ppn=4
+module load ncbi-blast
+cd $DIR
+blastp -query good_proteins_split/goodProteins_part_\${PBS_ARRAYID}.fasta -db goodProteins.fasta -num_threads 4 -outfmt 6 -out $DIR/blastp_out/goodProteins_part_\${PBS_ARRAYID}_vs_goodProteins.BLASTP.tab -evalue 1e-3" > $DIR/run_split_blast_array.sh
 
 
   #run array BLAST job
