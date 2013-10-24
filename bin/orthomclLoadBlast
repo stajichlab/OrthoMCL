@@ -48,7 +48,7 @@ sub loadBlastSQLite {
   my $sst = $base->getConfig("similarSequencesTable");
   my $dbString = $base->getConfig("dbConnectString");
   my $dbInstance;
-  if ($dbString =~ /DBI:SQLite:database=(.+)$/i){
+  if ($dbString =~ /database=(.+)$/i){
     $dbInstance = $1;
   }else {
     die "orthomcl.conf $dbString should be dbConnectString=DBI:SQLite:YOUR_DATABASE_NAME\n";
