@@ -57,7 +57,7 @@ sub loadBlastSQLite {
   $dbh->do("DROP INDEX ss_seqs_ix");
   #my @database = split(/:/, $dbString);
   #my $dbInstance = $database[2];
-  my $import_stmt = 'PRAGMA synchronous=OFF;\n'.
+  my $import_stmt = 'PRAGMA synchronous=OFF;\n'.'PRAGMA journal_mode = OFF;\n'.'PRAGMA locking_mode = EXCLUSIVE;\n'.
       '.separator \"\\\t\"\n.import '. "$blastFile $sst\n"; ## this works also
   
   `printf "$import_stmt" | sqlite3 $dbInstance`;
