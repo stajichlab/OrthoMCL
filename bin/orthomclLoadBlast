@@ -18,7 +18,7 @@ my $dbVendor = $base->getConfig("dbVendor");
 if ($dbVendor eq 'mysql') {
   loadBlastMySQL($base, $blastFile);
 }
-elsif ($dbVendor eq 'sqlite') {
+elsif ($dbVendor =~ 'sqlite') {
   loadBlastSQLite($base, $blastFile);
 }
 elsif ($dbVendor eq 'oracle') {
@@ -43,7 +43,7 @@ sub loadBlastMySQL {
 }
 sub loadBlastSQLite {
   my ($base, $blastFile) = @_;
-  require DBD::SQLite;
+  require DBD::SQLite; # not clear why this is required
   my $dbh = $base->getDbh();
   my $sst = $base->getConfig("similarSequencesTable");
   my $dbString = $base->getConfig("dbConnectString");
@@ -53,11 +53,22 @@ sub loadBlastSQLite {
   }else {
     die "orthomcl.conf $dbString should be dbConnectString=DBI:SQLite:YOUR_DATABASE_NAME\n";
   }
-  
+  $dbh->do("DROP INDEX ss_qtaxexp_ix");
+  $dbh->do("DROP INDEX ss_seqs_ix");
   #my @database = split(/:/, $dbString);
   #my $dbInstance = $database[2];
-  my $import_stmt = '.separator \"\\\t\"\n.import '. "$blastFile $sst\n"; ## this works also 
+  my $import_stmt = 'PRAGMA synchronous=OFF;\n'.
+      '.separator \"\\\t\"\n.import '. "$blastFile $sst\n"; ## this works also
+  
   `printf "$import_stmt" | sqlite3 $dbInstance`;
+  $dbh->do("CREATE INDEX ss_qtaxexp_ix
+ON SimilarSequences(query_id, subject_taxon_id,
+evalue_exp, evalue_mant,
+query_taxon_id, subject_id)");
+
+  $dbh->do("CREATE INDEX ss_seqs_ix
+ON SimilarSequences(query_id, subject_id,
+evalue_exp, evalue_mant, percent_match)");
 }
 
 
