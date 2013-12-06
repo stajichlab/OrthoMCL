@@ -50,6 +50,8 @@ sub loadBlastSQLite {
   my $dbInstance;
   if ($dbString =~ /database=(.+)$/i){
     $dbInstance = $1;
+  } elsif  ($dbString =~ /DBI:SQLite:(.+);?/){
+    $dbInstance = $1;
   }else {
     die "orthomcl.conf $dbString should be dbConnectString=DBI:SQLite:YOUR_DATABASE_NAME\n";
   }
