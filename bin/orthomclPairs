@@ -1189,9 +1189,9 @@ sub runSql {
     print LOGFILE localtime()
       . "   $msg  (Benchmark dataset took $sampleTime for this step)\n";
 
-    print "runsql:prepare: $sql\n";
+    #print "runsql:prepare: $sql\n";
     my $stmt = $dbh->prepare($sql);
-    print "runSql:execute\n";
+    #print "runSql:execute\n";
     $stmt->execute();
 
     &analyzeStats($tableToAnalyze) if ($tableToAnalyze);
@@ -1254,15 +1254,15 @@ sub analyzeStats {
     $stmt->execute();
   } elsif ( $base->getConfig("dbVendor") eq 'sqlite' ) {
     my $sql = "analyze $tableToAnalyze";
-    print "sqlite:analyzeStats:$sql\n";
+    #print "sqlite:analyzeStats:$sql\n";
     my $stmt = $dbh->prepare($sql);
-    print "sqlite:analyzeStats:execute\n";
+    #print "sqlite:analyzeStats:execute\n";
     $stmt->execute();
   } else {
     my $sql = "analyze table $tableToAnalyze";
-    print "else:analyzeStats:$sql\n";
+    #print "else:analyzeStats:$sql\n";
     my $stmt = $dbh->prepare($sql);
-    print "execute\n";
+    #print "execute\n";
     $stmt->execute();
   }
 }
