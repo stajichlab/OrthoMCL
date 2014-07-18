@@ -1,0 +1,11 @@
+dbVendor=sqlite
+dbConnectString=dbi:SQLite:orthomcl
+dbLogin=my_db_login
+dbPassword=my_db_password
+similarSequencesTable=SimilarSequences
+orthologTable=Ortholog
+inParalogTable=InParalog
+coOrthologTable=CoOrtholog
+interTaxonMatchView=InterTaxonMatch
+evalueExponentCutoff=-2
+percentMatchCutoff=20
