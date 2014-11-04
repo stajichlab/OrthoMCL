@@ -1299,6 +1299,9 @@ sub tableAlreadyDropped {
   if ( $base->getConfig("dbVendor") eq 'oracle' ) {
     $table = uc($table);
     $sql   = "select table_name from all_tables where table_name = '$table'";
+  } elsif ( $base->getConfig("dbVendor") eq 'sqlite' ) {
+    $table = uc($table);
+    $sql   = "select name from sqlite_master where type = 'table' and name = '$table'";
   } else {
     $sql = "show tables like '$table'";
   }
