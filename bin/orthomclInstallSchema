@@ -32,6 +32,12 @@ if ($base->getConfig("dbVendor") eq 'oracle') {
     if $oracleIndexTablespace;
 }
 
+## To increase the maximum size of your sqlite database
+if( $base->getConfig("dbVendor") eq 'sqlite'){
+  my $my_pragmas = "PRAGMA page_size = 65536; PRAGMA max_page_count = 2147483647;";
+  runSql( $my_pragmas );
+}
+
 createSimilarSequencesTable();
 createInParalogTable();
 createOrthologTable();
